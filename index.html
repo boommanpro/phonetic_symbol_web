@@ -164,28 +164,92 @@
   
   <!-- JavaScript -->
     <script>
+    // 存储音标对应的单词映射
+    let phoneticWords = {};
+    
+    // 加载单词映射数据
+    async function loadPhoneticWords() {
+      try {
+        const response = await fetch('phonetic_words.json');
+        if (response.ok) {
+          phoneticWords = await response.json();
+          console.log('成功加载单词映射数据');
+        } else {
+          console.log('单词映射文件不存在，将使用空映射');
+        }
+      } catch (error) {
+        console.log('加载单词映射数据失败:', error);
+      }
+    }
+    
+    // 页面加载时执行
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPhoneticWords();
+    });
+    
+    // 加载单词数据
+    function loadPhoneticWords() {
+      console.log('开始加载单词数据...');
+      return fetch('phonetic_words.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP错误: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('单词数据加载成功');
+          phoneticWords = data;
+          return phoneticWords;
+        })
+        .catch(error => {
+          console.error('加载单词数据时出错:', error);
+          // 使用默认数据作为后备
+          phoneticWords = {
+            "1": ["bee", "we", "read"],
+            "2": ["she", "he", "see"],
+            // ... 其他默认数据
+          };
+          return phoneticWords;
+        });
+    }
+    
     // 播放单词发音
     function playWordPronunciation(word) {
-      // 检查是否已存在该单词的视频元素
+      console.log(`尝试播放单词发音: ${word}`);
+      
+      // 检查是否已存在该单词的音频元素
       let wordAudioElement = document.getElementById(`word-audio-${word}`);
       if (!wordAudioElement) {
-        // 创建新的视频元素
+        console.log(`创建新的音频元素: word-audio-${word}`);
+        // 创建新的音频元素
         wordAudioElement = document.createElement('audio');
         wordAudioElement.id = `word-audio-${word}`;
-        wordAudioElement.src = `audio/words/word-${word}.mp3`;
+        const audioSrc = `words-voice/word-${word}.mp3`;
+        wordAudioElement.src = audioSrc;
         wordAudioElement.preload = 'auto';
         document.body.appendChild(wordAudioElement);
         
-        // 处理视频加载错误
-        wordAudioElement.addEventListener('error', function() {
-          console.log(`单词发音文件 audio/words/word-${word}.mp3 未找到`);
+        console.log(`设置音频源: ${audioSrc}`);
+        
+        // 处理音频加载事件
+        wordAudioElement.addEventListener('canplaythrough', function() {
+          console.log(`音频文件可播放: ${word}`);
+        });
+        
+        // 处理音频加载错误
+        wordAudioElement.addEventListener('error', function(e) {
+          console.error(`单词发音文件加载错误: ${audioSrc}`);
+          console.error(`错误代码: ${e.target.error.code}`);
+          // 显示错误提示
+          showNotification(`无法加载单词发音: ${word}`, 'error');
         });
       }
       
-      // 尝试播放视频
+      // 尝试播放音频
       try {
-        // 先停止所有其他视频
-        document.querySelectorAll('audio[id^="word-audio-"]').forEach(audio => {
+        // 先停止所有其他音频
+        document.querySelectorAll('audio[id^="word-audio-"], audio[id^="audio-"]').forEach(audio => {
           if (audio.id !== `word-audio-${word}`) {
             audio.pause();
             audio.currentTime = 0;
@@ -193,13 +257,193 @@
         });
         
         wordAudioElement.currentTime = 0; // 重置到开始位置
-        wordAudioElement.play().catch(e => {
-          console.log(`无法自动播放单词发音: ${e.message}`);
+        console.log(`尝试播放音频...`);
+        
+        // 播放音频并处理结果
+        wordAudioElement.play().then(() => {
+          console.log(`音频播放成功: ${word}`);
+          showNotification(`正在播放: ${word}`, 'success');
+        }).catch(e => {
+          console.error(`无法自动播放单词发音: ${e.message}`);
+          
+          // 检查是否存在手动播放按钮
+          let playButton = document.getElementById(`play-button-${word}`);
+          if (!playButton) {
+            // 创建手动播放按钮
+            playButton = document.createElement('button');
+            playButton.id = `play-button-${word}`;
+            playButton.textContent = `播放 ${word}`;
+            playButton.className = 'bg-primary text-white px-4 py-2 rounded-md shadow-lg fixed bottom-4 right-4 z-50';
+            playButton.style.fontSize = '16px';
+            playButton.style.minWidth = '120px';
+            playButton.style.transition = 'all 0.3s ease';
+            playButton.style.animation = 'fadeIn 0.5s ease-in-out';
+            
+            // 添加点击事件
+            playButton.addEventListener('click', function() {
+              console.log(`用户点击播放按钮: ${word}`);
+              wordAudioElement.play().then(() => {
+                console.log(`通过手动点击播放成功: ${word}`);
+                showNotification(`正在播放: ${word}`, 'success');
+                // 播放完成后移除按钮
+                setTimeout(() => {
+                  if (playButton.parentNode) {
+                    playButton.style.animation = 'fadeOut 0.5s ease-in-out';
+                    setTimeout(() => playButton.remove(), 500);
+                  }
+                }, 2000);
+              }).catch(err => {
+                console.error(`手动点击播放也失败: ${err.message}`);
+                showNotification(`播放失败，请检查文件格式`, 'error');
+              });
+            });
+            
+            document.body.appendChild(playButton);
+            console.log(`已添加手动播放按钮`);
+          }
         });
       } catch (e) {
-        console.log(`播放单词发音时出错: ${e.message}`);
+        console.error(`播放单词发音时出错: ${e.message}`);
+        showNotification(`播放错误: ${e.message}`, 'error');
       }
     }
+    
+    // 显示通知
+    function showNotification(message, type = 'info') {
+      // 移除已有的通知
+      const existingNotif = document.getElementById('audio-notification');
+      if (existingNotif) {
+        existingNotif.remove();
+      }
+      
+      // 创建通知元素
+      const notification = document.createElement('div');
+      notification.id = 'audio-notification';
+      notification.textContent = message;
+      
+      // 设置样式
+      notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 transition-all 0.3s ease`;
+      
+      // 根据类型设置颜色
+      if (type === 'success') {
+        notification.style.backgroundColor = '#d1fae5';
+        notification.style.color = '#065f46';
+      } else if (type === 'error') {
+        notification.style.backgroundColor = '#fee2e2';
+        notification.style.color = '#991b1b';
+      } else {
+        notification.style.backgroundColor = '#dbeafe';
+        notification.style.color = '#1e40af';
+      }
+      
+      // 添加到页面
+      document.body.appendChild(notification);
+      
+      // 3秒后自动移除
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.style.opacity = '0';
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => notification.remove(), 300);
+        }
+      }, 3000);
+    }
+    
+    // 播放音标和单词序列
+    function playPhoneticSequence(id, words) {
+      // 获取或创建音标音频元素
+      let phoneticAudio = document.getElementById(`audio-${id}`);
+      if (!phoneticAudio) {
+        phoneticAudio = document.createElement('audio');
+        phoneticAudio.id = `audio-${id}`;
+        phoneticAudio.src = `video/phonetic-${id}.mp4`;
+        phoneticAudio.preload = 'auto';
+        document.body.appendChild(phoneticAudio);
+        
+        // 处理音频加载错误，尝试加载MP3版本
+        phoneticAudio.addEventListener('error', function() {
+          console.log(`视频文件 video/phonetic-${id}.mp4 未找到`);
+          phoneticAudio.src = `audio/phonetic-${id}.mp3`;
+          phoneticAudio.load();
+        });
+      }
+      
+      // 播放计数器
+      let phoneticPlayCount = 0;
+      let wordIndex = 0;
+      let isPlayingWords = false;
+      
+      // 播放完成回调
+      const onPhoneticEnd = () => {
+        phoneticPlayCount++;
+        if (phoneticPlayCount < 3) {
+          // 播放音标音频3次
+          phoneticAudio.currentTime = 0;
+          phoneticAudio.play();
+        } else if (!isPlayingWords) {
+          // 开始播放单词
+          isPlayingWords = true;
+          playNextWord();
+        }
+      };
+      
+      // 播放下一个单词
+      const playNextWord = () => {
+        if (wordIndex < words.length) {
+          const word = words[wordIndex];
+          wordIndex++;
+          
+          // 播放单词音频
+          let wordAudio = document.getElementById(`word-audio-${word}`);
+          if (!wordAudio) {
+            wordAudio = document.createElement('audio');
+            wordAudio.id = `word-audio-${word}`;
+            wordAudio.src = `words-voice/word-${word}.mp3`;
+            wordAudio.preload = 'auto';
+            document.body.appendChild(wordAudio);
+          }
+          
+          wordAudio.onended = playNextWord;
+          wordAudio.currentTime = 0;
+          wordAudio.play();
+        } else {
+          // 单词播放完成，重新开始循环
+          phoneticPlayCount = 0;
+          wordIndex = 0;
+          isPlayingWords = false;
+          phoneticAudio.currentTime = 0;
+          phoneticAudio.play();
+        }
+      };
+      
+      // 设置音标音频播放完成事件
+      phoneticAudio.onended = onPhoneticEnd;
+      
+      // 开始播放
+      phoneticAudio.currentTime = 0;
+      phoneticAudio.play();
+      
+      // 返回音频元素，以便可以停止播放
+      return phoneticAudio;
+    }
+    
+    // 停止所有相关音频播放
+    function stopAllAudio(id) {
+      // 停止音标音频
+      const phoneticAudio = document.getElementById(`audio-${id}`);
+      if (phoneticAudio) {
+        phoneticAudio.pause();
+        phoneticAudio.currentTime = 0;
+      }
+      
+      // 停止可能正在播放的单词音频
+      const wordAudios = document.querySelectorAll(`[id^="word-audio-"]`);
+      wordAudios.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    }
+    
     // 添加双击事件处理
     document.querySelectorAll('.btn-phonetic').forEach(button => {
       // 双击打开原网站
@@ -209,12 +453,10 @@
         window.open(url, '_blank');
       });
       
-      // 音标与示例单词的映射
-      const phoneticWords = {
-        
-      };
+      // 用于存储当前播放的音频元素
+      let currentPlayingAudio = null;
       
-      // 创建工具提示显示单词
+      // 鼠标悬停创建工具提示显示单词
       button.addEventListener('mouseenter', function() {
         // 获取链接中的数字部分来标识音标
         const href = this.getAttribute('href');
@@ -223,33 +465,6 @@
           const id = match[1];
           const phoneticText = this.textContent;
           
-          // 检查是否已存在该音标的视频元素
-          let audioElement = document.getElementById(`audio-${id}`);
-          if (!audioElement) {
-            // 创建新的视频元素
-            audioElement = document.createElement('audio');
-            audioElement.id = `audio-${id}`;
-            audioElement.src = `video/phonetic-${id}.mp4`;
-            audioElement.preload = 'auto';
-            audioElement.loop = true; // 设置循环播放
-            document.body.appendChild(audioElement);
-            
-            // 处理视频加载错误
-            audioElement.addEventListener('error', function() {
-              console.log(`视频文件 video/phonetic-${id}.mp4 未找到`);
-            });
-          }
-          
-          // 尝试播放视频
-          try {
-            audioElement.currentTime = 0; // 重置到开始位置
-            audioElement.play().catch(e => {
-              console.log(`无法自动播放视频: ${e.message}`);
-            });
-          } catch (e) {
-            console.log(`播放视频时出错: ${e.message}`);
-          }
-          
           // 添加单词提示
           if (!this.querySelector('.word-tooltip')) {
             const tooltip = document.createElement('div');
@@ -257,62 +472,146 @@
             
             const words = phoneticWords[id] || [];
             if (words.length > 0) {
-              // 检查单词发音文件是否存在
-              const checkWordAvailability = async (word) => {
-                try {
-                  const response = await fetch(`audio/words/word-${word}.mp3`, { method: 'HEAD' });
-                  return response.ok;
-                } catch {
-                  return false;
-                }
-              };
+              // 显示单词列表
+              tooltip.innerHTML = `<div class="font-semibold mb-1">示例单词:</div>`;
               
-              // 显示加载状态
-              tooltip.innerHTML = `<div class="font-semibold mb-1">示例单词:</div><div class="text-gray-400">加载中...</div>`;
+              // 创建单词容器
+              const wordsContainer = document.createElement('div');
+              tooltip.appendChild(wordsContainer);
+              
               this.style.position = 'relative';
               this.appendChild(tooltip);
               
-              // 异步检查所有单词的可用性
-              setTimeout(async () => {
-                const wordElements = [];
-                for (const word of words) {
-                  const isAvailable = await checkWordAvailability(word);
-                  wordElements.push(
-                    `<span class="word-item ${isAvailable ? 'available' : 'not-available'}" data-word="${word}">${word}</span>`
-                  );
-                }
-                
-                // 更新单词列表
-                tooltip.innerHTML = `<div class="font-semibold mb-1">示例单词:</div><div>${wordElements.join(', ')}</div>`;
+              // 显示单词列表
+              for (const word of words) {
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word-item cursor-pointer hover:text-primary transition-colors';
+                wordSpan.dataset.word = word;
+                wordSpan.textContent = word;
                 
                 // 为单词添加点击事件
-                tooltip.querySelectorAll('.word-item').forEach(item => {
-                  item.addEventListener('click', function() {
-                    const word = this.getAttribute('data-word');
-                    playWordPronunciation(word);
-                  });
+                wordSpan.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  const word = this.getAttribute('data-word');
+                  console.log(`用户点击单词: ${word}`);
+                  playWordPronunciation(word);
                 });
-              }, 100);
+                
+                // 为单词添加鼠标悬停事件
+                wordSpan.addEventListener('mouseenter', function() {
+                  const word = this.getAttribute('data-word');
+                  console.log(`用户悬停在单词上: ${word}`);
+                  playWordPronunciation(word);
+                });
+                
+                wordsContainer.appendChild(wordSpan);
+                // 添加逗号分隔符
+                if (word !== words[words.length - 1]) {
+                  const comma = document.createTextNode(', ');
+                  wordsContainer.appendChild(comma);
+                }
+              }
+              
+              // 播放音标和单词序列
+              currentPlayingAudio = playPhoneticSequence(id, words);
+            } else {
+              // 如果没有单词数据，显示提示
+              tooltip.innerHTML = `<div class="text-gray-400">加载单词数据中...</div>`;
+              this.style.position = 'relative';
+              this.appendChild(tooltip);
             }
           }
         }
       });
       
-      // 鼠标离开时停止循环播放
+      // 鼠标离开时停止播放并隐藏工具提示
       button.addEventListener('mouseleave', function() {
+        // 移除工具提示
+        const tooltip = this.querySelector('.word-tooltip');
+        if (tooltip) {
+          tooltip.remove();
+        }
+        
+        // 停止音频播放
         const href = this.getAttribute('href');
         const match = href.match(/d(\d+)/);
         if (match && match[1]) {
           const id = match[1];
-          const audioElement = document.getElementById(`audio-${id}`);
-          if (audioElement) {
-            audioElement.pause();
+          stopAllAudio(id);
+        }
+      });
+      
+      // 点击事件 - 移除悬浮单词卡片
+      button.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // 移除工具提示
+        const tooltip = this.querySelector('.word-tooltip');
+        if (tooltip) {
+          tooltip.remove();
+        }
+        
+        // 停止音频播放
+        const href = this.getAttribute('href');
+        const match = href.match(/d(\d+)/);
+        if (match && match[1]) {
+          const id = match[1];
+          stopAllAudio(id);
+        }
+        
+        // 获取链接中的数字部分来标识音标
+        if (match && match[1]) {
+          const id = match[1];
+          const phoneticText = this.textContent;
+          
+          // 检查是否已存在该音标的音频元素
+          let audioElement = document.getElementById(`audio-${id}`);
+          if (!audioElement) {
+            // 创建新的音频元素
+            audioElement = document.createElement('audio');
+            audioElement.id = `audio-${id}`;
+            // 尝试从video目录加载（如果auto_download.py已经下载过）
+            audioElement.src = `video/phonetic-${id}.mp4`;
+            audioElement.preload = 'auto';
+            audioElement.loop = false; // 修改为不循环播放
+            document.body.appendChild(audioElement);
+            
+            // 处理音频加载错误
+            audioElement.addEventListener('error', function() {
+              console.log(`视频文件 video/phonetic-${id}.mp4 未找到`);
+              // 尝试从audio目录加载
+              audioElement.src = `audio/phonetic-${id}.mp3`;
+              audioElement.load();
+              
+              audioElement.addEventListener('error', function() {
+                console.log(`音频文件 audio/phonetic-${id}.mp3 也未找到`);
+              });
+            });
           }
           
-          // 移除单词提示
-          const tooltip = this.querySelector('.word-tooltip');
-          if (tooltip) {
-            this.removeChild(tooltip);
+          // 尝试播放音频 - 添加提示信息
+          try {
+            // 先停止所有其他音频
+            document.querySelectorAll('audio[id^="audio-"], audio[id^="word-audio-"]').forEach(audio => {
+              if (audio.id !== `audio-${id}`) {
+                audio.pause();
+                audio.currentTime = 0;
+              }
+            });
+            
+            audioElement.currentTime = 0; // 重置到开始位置
+            console.log(`尝试播放音标音频: ${phoneticText}`);
+            
+            audioElement.play().then(() => {
+              console.log(`音标音频播放成功: ${phoneticText}`);
+              showNotification(`正在播放音标: ${phoneticText}`, 'success');
+            }).catch(e => {
+              console.error(`无法自动播放音标音频: ${e.message}`);
+              showNotification(`播放音标失败: ${e.message}`, 'error');
+            });
+          } catch (e) {
+            console.error(`播放音标音频时出错: ${e.message}`);
+            showNotification(`播放音标错误: ${e.message}`, 'error');
           }
         }
       });

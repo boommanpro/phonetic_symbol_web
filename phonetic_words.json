@@ -1,0 +1,290 @@
+{
+  "1": [
+    "long_vowel_i",
+    "bee",
+    "we",
+    "read"
+  ],
+  "2": [
+    "long_vowel_3",
+    "bird",
+    "word",
+    "work"
+  ],
+  "3": [
+    "long_vowel_2",
+    "mark",
+    "shark",
+    "father"
+  ],
+  "4": [
+    "long_vowel_4",
+    "caught",
+    "walk",
+    "board"
+  ],
+  "5": [
+    "long_vowel_u",
+    "cool",
+    "rude",
+    "tooth"
+  ],
+  "6": [
+    "short_vowel_I",
+    "little",
+    "sit",
+    "fish"
+  ],
+  "7": [
+    "short_vowel_e",
+    "bed",
+    "red",
+    "egg"
+  ],
+  "8": [
+    "mass",
+    "ant",
+    "lamb",
+    "short_vowel_5"
+  ],
+  "9": [
+    "short_vowel_6",
+    "center",
+    "panda",
+    "actor"
+  ],
+  "10": [
+    "short_vowel_7",
+    "cup",
+    "bus",
+    "sun"
+  ],
+  "11": [
+    "short_vowel_8",
+    "dog",
+    "box",
+    "stop"
+  ],
+  "12": [
+    "short_vowel_9",
+    "book",
+    "good",
+    "full"
+  ],
+  "13": [
+    "two_vowel_ei",
+    "wait",
+    "late",
+    "hate"
+  ],
+  "14": [
+    "two_vowel_1",
+    "my",
+    "why",
+    "write"
+  ],
+  "15": [
+    "noise",
+    "point",
+    "oil",
+    "two_vowel_4"
+  ],
+  "16": [
+    "two_vowel_2",
+    "mouse",
+    "town",
+    "cloud"
+  ],
+  "17": [
+    "two_vowel_5",
+    "pose",
+    "mode",
+    "know"
+  ],
+  "18": [
+    "two_vowel_6",
+    "beer",
+    "mere",
+    "deer"
+  ],
+  "19": [
+    "two_vowel_3",
+    "bear",
+    "wear",
+    "fare"
+  ],
+  "20": [
+    "two_vowel_7",
+    "poor",
+    "tour",
+    "pure"
+  ],
+  "21": [
+    "consonant_p",
+    "sip",
+    "put",
+    "cup"
+  ],
+  "22": [
+    "consonant_t",
+    "tomorrow",
+    "today",
+    "top"
+  ],
+  "23": [
+    "consonant_k",
+    "cat",
+    "cup",
+    "card"
+  ],
+  "24": [
+    "consonant_f",
+    "fish",
+    "free",
+    "floor"
+  ],
+  "25": [
+    "consonant_s",
+    "nice",
+    "bus",
+    "sit"
+  ],
+  "26": [
+    "consonant_1",
+    "ship",
+    "fish",
+    "shirt"
+  ],
+  "27": [
+    "consonant_2",
+    "path",
+    "think",
+    "math"
+  ],
+  "28": [
+    "consonant_h",
+    "hut",
+    "hello",
+    "home"
+  ],
+  "29": [
+    "consonant_6",
+    "chick",
+    "coach",
+    "rich"
+  ],
+  "30": [
+    "consonant_ts",
+    "eats",
+    "cats",
+    "gifts"
+  ],
+  "31": [
+    "consonant_tr",
+    "track",
+    "tree",
+    "trill"
+  ],
+  "32": [
+    "consonant_b",
+    "bread",
+    "club",
+    "lab"
+  ],
+  "33": [
+    "consonant_d",
+    "dog",
+    "card",
+    "bed"
+  ],
+  "34": [
+    "consonant_g",
+    "egg",
+    "dig",
+    "gate"
+  ],
+  "35": [
+    "consonant_v",
+    "very",
+    "dove",
+    "ever"
+  ],
+  "36": [
+    "consonant_z",
+    "seize",
+    "zero",
+    "size"
+  ],
+  "37": [
+    "consonant_3",
+    "decision",
+    "television",
+    "leisure"
+  ],
+  "38": [
+    "consonant_5",
+    "they",
+    "those",
+    "other"
+  ],
+  "39": [
+    "consonant_r",
+    "read",
+    "grass",
+    "write"
+  ],
+  "40": [
+    "consonant_7",
+    "jam",
+    "bridge",
+    "July"
+  ],
+  "41": [
+    "consonant_dz",
+    "beds",
+    "adds",
+    "friends"
+  ],
+  "42": [
+    "consonant_dr",
+    "dress",
+    "drink",
+    "dream"
+  ],
+  "43": [
+    "consonant_m",
+    "smart",
+    "move",
+    "mud"
+  ],
+  "44": [
+    "consonant_n",
+    "no",
+    "hunt",
+    "find"
+  ],
+  "45": [
+    "consonant_4",
+    "spring",
+    "sing",
+    "ink"
+  ],
+  "46": [
+    "consonant_l",
+    "line",
+    "pool",
+    "alive"
+  ],
+  "47": [
+    "consonant_w",
+    "work",
+    "wood",
+    "what"
+  ],
+  "48": [
+    "consonant_j",
+    "yell",
+    "yak",
+    "youth"
+  ]
+}
