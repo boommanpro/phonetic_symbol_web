@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英语音标学习</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义颜色和字体 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4361ee',
+            secondary: '#3f37c9',
+            accent: '#4cc9f0',
+            light: '#f8f9fa',
+            dark: '#212529'
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .btn-hover {
+        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+      }
+      .category-title {
+        @apply text-xl font-bold mb-4 text-dark border-b-2 border-primary pb-2;
+      }
+      .btn-phonetic {
+        @apply bg-white border border-gray-300 rounded-md py-2 px-4 text-center min-w-[80px] btn-hover cursor-pointer;
+      }
+      .word-tooltip {
+        @apply absolute bg-white shadow-lg p-2 rounded-md text-sm z-10 mt-1 whitespace-nowrap;
+      }
+      .word-item {
+        @apply px-1 py-0.5 rounded transition-colors;
+      }
+      .word-item:hover {
+        @apply bg-gray-100 cursor-pointer;
+      }
+      .word-item.available {
+        @apply text-primary;
+      }
+      .word-item.not-available {
+        @apply text-gray-400;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <!-- 标题部分 -->
+    <header class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-primary mb-2">英语音标学习</h1>
+      <p class="text-gray-600">双击进入音标详情界面</p>
+    </header>
+    
+    <!-- 主内容区域 -->
+    <main class="space-y-8">
+      <!-- 长元音部分 -->
+      <section class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="category-title">元音 | 长元音</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <a href="https://www.yyybabc.com/p/d1.html" class="btn-phonetic">/i:/</a>
+          <a href="https://www.yyybabc.com/p/d2.html" class="btn-phonetic">/ɜ:/</a>
+          <a href="https://www.yyybabc.com/p/d3.html" class="btn-phonetic">/ɑ:/</a>
+          <a href="https://www.yyybabc.com/p/d4.html" class="btn-phonetic">/ɔ:/</a>
+          <a href="https://www.yyybabc.com/p/d5.html" class="btn-phonetic">/u:/</a>
+        </div>
+      </section>
+      
+      <!-- 短元音部分 -->
+      <section class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="category-title">元音 | 短元音</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <a href="https://www.yyybabc.com/p/d6.html" class="btn-phonetic">/ɪ/</a>
+          <a href="https://www.yyybabc.com/p/d7.html" class="btn-phonetic">/e/</a>
+          <a href="https://www.yyybabc.com/p/d8.html" class="btn-phonetic">/æ/</a>
+          <a href="https://www.yyybabc.com/p/d9.html" class="btn-phonetic">/ə/</a>
+          <a href="https://www.yyybabc.com/p/d10.html" class="btn-phonetic">/ʌ/</a>
+          <a href="https://www.yyybabc.com/p/d11.html" class="btn-phonetic">/ɒ/</a>
+          <a href="https://www.yyybabc.com/p/d12.html" class="btn-phonetic">/ʊ/</a>
+        </div>
+      </section>
+      
+      <!-- 双元音部分 -->
+      <section class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="category-title">元音 | 双元音</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <a href="https://www.yyybabc.com/p/d13.html" class="btn-phonetic">/eɪ/</a>
+          <a href="https://www.yyybabc.com/p/d14.html" class="btn-phonetic">/aɪ/</a>
+          <a href="https://www.yyybabc.com/p/d15.html" class="btn-phonetic">/ɔɪ/</a>
+          <a href="https://www.yyybabc.com/p/d16.html" class="btn-phonetic">/aʊ/</a>
+          <a href="https://www.yyybabc.com/p/d17.html" class="btn-phonetic">/əʊ/</a>
+          <a href="https://www.yyybabc.com/p/d18.html" class="btn-phonetic">/ɪə/</a>
+          <a href="https://www.yyybabc.com/p/d19.html" class="btn-phonetic">/eə/</a>
+          <a href="https://www.yyybabc.com/p/d20.html" class="btn-phonetic">/ʊə/</a>
+        </div>
+      </section>
+      
+      <!-- 清辅音部分 -->
+      <section class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="category-title">辅音 | 清辅音</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <a href="https://www.yyybabc.com/p/d21.html" class="btn-phonetic">/p/</a>
+          <a href="https://www.yyybabc.com/p/d22.html" class="btn-phonetic">/t/</a>
+          <a href="https://www.yyybabc.com/p/d23.html" class="btn-phonetic">/k/</a>
+          <a href="https://www.yyybabc.com/p/d24.html" class="btn-phonetic">/f/</a>
+          <a href="https://www.yyybabc.com/p/d25.html" class="btn-phonetic">/s/</a>
+          <a href="https://www.yyybabc.com/p/d26.html" class="btn-phonetic">/ʃ/</a>
+          <a href="https://www.yyybabc.com/p/d27.html" class="btn-phonetic">/θ/</a>
+          <a href="https://www.yyybabc.com/p/d28.html" class="btn-phonetic">/h/</a>
+          <a href="https://www.yyybabc.com/p/d29.html" class="btn-phonetic">/tʃ/</a>
+          <a href="https://www.yyybabc.com/p/d30.html" class="btn-phonetic">/ts/</a>
+          <a href="https://www.yyybabc.com/p/d31.html" class="btn-phonetic">/tr/</a>
+        </div>
+      </section>
+      
+      <!-- 浊辅音部分 -->
+      <section class="bg-white rounded-xl shadow-sm p-6">
+        <h2 class="category-title">辅音 | 浊辅音</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          <a href="https://www.yyybabc.com/p/d32.html" class="btn-phonetic">/b/</a>
+          <a href="https://www.yyybabc.com/p/d33.html" class="btn-phonetic">/d/</a>
+          <a href="https://www.yyybabc.com/p/d34.html" class="btn-phonetic">/g/</a>
+          <a href="https://www.yyybabc.com/p/d35.html" class="btn-phonetic">/v/</a>
+          <a href="https://www.yyybabc.com/p/d36.html" class="btn-phonetic">/z/</a>
+          <a href="https://www.yyybabc.com/p/d37.html" class="btn-phonetic">/ʒ/</a>
+          <a href="https://www.yyybabc.com/p/d38.html" class="btn-phonetic">/ð/</a>
+          <a href="https://www.yyybabc.com/p/d39.html" class="btn-phonetic">/r/</a>
+          <a href="https://www.yyybabc.com/p/d40.html" class="btn-phonetic">/dʒ/</a>
+          <a href="https://www.yyybabc.com/p/d41.html" class="btn-phonetic">/dz/</a>
+          <a href="https://www.yyybabc.com/p/d42.html" class="btn-phonetic">/dr/</a>
+          <a href="https://www.yyybabc.com/p/d43.html" class="btn-phonetic">/m/</a>
+          <a href="https://www.yyybabc.com/p/d44.html" class="btn-phonetic">/n/</a>
+          <a href="https://www.yyybabc.com/p/d45.html" class="btn-phonetic">/ŋ/</a>
+          <a href="https://www.yyybabc.com/p/d46.html" class="btn-phonetic">/l/</a>
+          <a href="https://www.yyybabc.com/p/d47.html" class="btn-phonetic">/w/</a>
+          <a href="https://www.yyybabc.com/p/d48.html" class="btn-phonetic">/j/</a>
+        </div>
+      </section>
+    </main>
+    
+    <!-- 页脚 -->
+    <footer class="mt-12 text-center text-gray-500">
+      <p>© 2023 英语音标学习网站 | 点击任意音标开始学习</p>
+    </footer>
+  </div>
+  
+  <!-- JavaScript -->
+    <script>
+    // 播放单词发音
+    function playWordPronunciation(word) {
+      // 检查是否已存在该单词的视频元素
+      let wordAudioElement = document.getElementById(`word-audio-${word}`);
+      if (!wordAudioElement) {
+        // 创建新的视频元素
+        wordAudioElement = document.createElement('audio');
+        wordAudioElement.id = `word-audio-${word}`;
+        wordAudioElement.src = `audio/words/word-${word}.mp3`;
+        wordAudioElement.preload = 'auto';
+        document.body.appendChild(wordAudioElement);
+        
+        // 处理视频加载错误
+        wordAudioElement.addEventListener('error', function() {
+          console.log(`单词发音文件 audio/words/word-${word}.mp3 未找到`);
+        });
+      }
+      
+      // 尝试播放视频
+      try {
+        // 先停止所有其他视频
+        document.querySelectorAll('audio[id^="word-audio-"]').forEach(audio => {
+          if (audio.id !== `word-audio-${word}`) {
+            audio.pause();
+            audio.currentTime = 0;
+          }
+        });
+        
+        wordAudioElement.currentTime = 0; // 重置到开始位置
+        wordAudioElement.play().catch(e => {
+          console.log(`无法自动播放单词发音: ${e.message}`);
+        });
+      } catch (e) {
+        console.log(`播放单词发音时出错: ${e.message}`);
+      }
+    }
+    // 添加双击事件处理
+    document.querySelectorAll('.btn-phonetic').forEach(button => {
+      // 双击打开原网站
+      button.addEventListener('dblclick', function(e) {
+        e.preventDefault();
+        const url = this.getAttribute('href');
+        window.open(url, '_blank');
+      });
+      
+      // 音标与示例单词的映射
+      const phoneticWords = {
+        
+      };
+      
+      // 创建工具提示显示单词
+      button.addEventListener('mouseenter', function() {
+        // 获取链接中的数字部分来标识音标
+        const href = this.getAttribute('href');
+        const match = href.match(/d(\d+)/);
+        if (match && match[1]) {
+          const id = match[1];
+          const phoneticText = this.textContent;
+          
+          // 检查是否已存在该音标的视频元素
+          let audioElement = document.getElementById(`audio-${id}`);
+          if (!audioElement) {
+            // 创建新的视频元素
+            audioElement = document.createElement('audio');
+            audioElement.id = `audio-${id}`;
+            audioElement.src = `video/phonetic-${id}.mp4`;
+            audioElement.preload = 'auto';
+            audioElement.loop = true; // 设置循环播放
+            document.body.appendChild(audioElement);
+            
+            // 处理视频加载错误
+            audioElement.addEventListener('error', function() {
+              console.log(`视频文件 video/phonetic-${id}.mp4 未找到`);
+            });
+          }
+          
+          // 尝试播放视频
+          try {
+            audioElement.currentTime = 0; // 重置到开始位置
+            audioElement.play().catch(e => {
+              console.log(`无法自动播放视频: ${e.message}`);
+            });
+          } catch (e) {
+            console.log(`播放视频时出错: ${e.message}`);
+          }
+          
+          // 添加单词提示
+          if (!this.querySelector('.word-tooltip')) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'word-tooltip';
+            
+            const words = phoneticWords[id] || [];
+            if (words.length > 0) {
+              // 检查单词发音文件是否存在
+              const checkWordAvailability = async (word) => {
+                try {
+                  const response = await fetch(`audio/words/word-${word}.mp3`, { method: 'HEAD' });
+                  return response.ok;
+                } catch {
+                  return false;
+                }
+              };
+              
+              // 显示加载状态
+              tooltip.innerHTML = `<div class="font-semibold mb-1">示例单词:</div><div class="text-gray-400">加载中...</div>`;
+              this.style.position = 'relative';
+              this.appendChild(tooltip);
+              
+              // 异步检查所有单词的可用性
+              setTimeout(async () => {
+                const wordElements = [];
+                for (const word of words) {
+                  const isAvailable = await checkWordAvailability(word);
+                  wordElements.push(
+                    `<span class="word-item ${isAvailable ? 'available' : 'not-available'}" data-word="${word}">${word}</span>`
+                  );
+                }
+                
+                // 更新单词列表
+                tooltip.innerHTML = `<div class="font-semibold mb-1">示例单词:</div><div>${wordElements.join(', ')}</div>`;
+                
+                // 为单词添加点击事件
+                tooltip.querySelectorAll('.word-item').forEach(item => {
+                  item.addEventListener('click', function() {
+                    const word = this.getAttribute('data-word');
+                    playWordPronunciation(word);
+                  });
+                });
+              }, 100);
+            }
+          }
+        }
+      });
+      
+      // 鼠标离开时停止循环播放
+      button.addEventListener('mouseleave', function() {
+        const href = this.getAttribute('href');
+        const match = href.match(/d(\d+)/);
+        if (match && match[1]) {
+          const id = match[1];
+          const audioElement = document.getElementById(`audio-${id}`);
+          if (audioElement) {
+            audioElement.pause();
+          }
+          
+          // 移除单词提示
+          const tooltip = this.querySelector('.word-tooltip');
+          if (tooltip) {
+            this.removeChild(tooltip);
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
