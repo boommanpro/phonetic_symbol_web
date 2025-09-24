@@ -214,7 +214,7 @@
     
     <!-- 页脚 -->
     <footer class="mt-12 text-center text-gray-500">
-      <p>© 2023 英语音标学习网站 | 点击任意音标开始学习</p>
+      <p>© 2025 英语音标学习网站 | 点击任意音标开始学习</p>
     </footer>
   </div>
   
@@ -492,7 +492,8 @@
           const phoneticText = this.textContent;
           
           // 添加单词提示
-          if (!this.querySelector('.word-tooltip')) {
+          const existingTooltip = this.querySelector('.word-tooltip');
+          if (!existingTooltip) {
             const tooltip = document.createElement('div');
             tooltip.className = 'word-tooltip';
             
@@ -514,10 +515,12 @@
                 wordSpan.className = 'word-item cursor-pointer hover:text-primary transition-colors';
                 wordSpan.dataset.word = word;
                 wordSpan.textContent = word;
+                wordSpan.style.textDecoration = 'none'; // 确保没有下划线
                 
                 // 为单词添加点击事件
                 wordSpan.addEventListener('click', function(e) {
                   e.stopPropagation();
+                  e.preventDefault();
                   const word = this.getAttribute('data-word');
                   console.log(`用户点击单词: ${word}`);
                   playWordPronunciation(word);
@@ -528,6 +531,17 @@
                   const word = this.getAttribute('data-word');
                   console.log(`用户悬停在单词上: ${word}`);
                   playWordPronunciation(word);
+                });
+                
+                // 处理鼠标离开单词的事件
+                wordSpan.addEventListener('mouseleave', function(e) {
+                  // 防止事件冒泡
+                  e.stopPropagation();
+                });
+                
+                // 防止单词继承父元素的链接行为
+                wordSpan.addEventListener('mousedown', function(e) {
+                  e.preventDefault();
                 });
                 
                 wordsContainer.appendChild(wordSpan);
@@ -546,24 +560,50 @@
               this.style.position = 'relative';
               this.appendChild(tooltip);
             }
+          } else {
+            // 如果已经有tooltip，重新开始播放
+            const words = phoneticWords[id] || [];
+            if (words.length > 0) {
+              // 重新播放音标和单词序列
+              currentPlayingAudio = playPhoneticSequence(id, words);
+            }
           }
         }
       });
       
       // 鼠标离开时停止播放并隐藏工具提示
-      button.addEventListener('mouseleave', function() {
-        // 移除工具提示
+      button.addEventListener('mouseleave', function(e) {
+        // 检查鼠标是否移向了tooltip中的元素
         const tooltip = this.querySelector('.word-tooltip');
         if (tooltip) {
-          tooltip.remove();
-        }
-        
-        // 停止音频播放
-        const href = this.getAttribute('href');
-        const match = href.match(/d(\d+)/);
-        if (match && match[1]) {
-          const id = match[1];
-          stopAllAudio(id);
+          // 使用setTimeout延迟处理mouseleave事件，
+          // 以便检查鼠标是否移向了tooltip中的元素
+          setTimeout(() => {
+            // 检查relatedTarget（鼠标移向的元素）是否在tooltip内
+            if (tooltip.contains(document.activeElement) || 
+                (e.relatedTarget && tooltip.contains(e.relatedTarget))) {
+              return; // 鼠标移向了tooltip内部，不执行移除操作
+            }
+            
+            // 移除工具提示
+            tooltip.remove();
+            
+            // 停止音频播放
+            const href = this.getAttribute('href');
+            const match = href.match(/d(\d+)/);
+            if (match && match[1]) {
+              const id = match[1];
+              stopAllAudio(id);
+            }
+          }, 100); // 延迟100毫秒执行
+        } else {
+          // 没有tooltip时直接移除并停止播放
+          const href = this.getAttribute('href');
+          const match = href.match(/d(\d+)/);
+          if (match && match[1]) {
+            const id = match[1];
+            stopAllAudio(id);
+          }
         }
       });
       
