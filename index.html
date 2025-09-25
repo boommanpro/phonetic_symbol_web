@@ -524,6 +524,20 @@
               // 添加到body而不是this
               document.body.appendChild(tooltip);
               
+              // 添加鼠标离开事件处理程序
+              tooltip.addEventListener('mouseleave', function(e) {
+                // 隐藏工具提示
+                this.style.display = 'none';
+                
+                // 停止音频播放
+                const href = button.getAttribute('href');
+                const match = href.match(/d(\d+)/);
+                if (match && match[1]) {
+                  const id = match[1];
+                  stopAllAudio(id);
+                }
+              });
+              
               // 显示单词列表
               for (const word of words) {
                 const wordSpan = document.createElement('span');
