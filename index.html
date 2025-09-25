@@ -42,10 +42,11 @@
         @apply text-xl font-bold mb-4 text-dark border-b-2 border-primary pb-2;
       }
       .btn-phonetic {
-        @apply bg-white border border-gray-300 rounded-md py-2 px-4 text-center min-w-[80px] btn-hover cursor-pointer;
+        @apply bg-white border border-gray-300 rounded-md py-2 px-4 text-center min-w-[80px] btn-hover cursor-pointer relative;
       }
       .word-tooltip {
         @apply absolute bg-white shadow-lg p-2 rounded-md text-sm mt-1 whitespace-nowrap;
+        z-index: 10000;
       }
       .word-item {
         @apply px-1 py-0.5 rounded transition-colors;
@@ -329,6 +330,47 @@
         
         wordAudioElement.currentTime = 0; // 重置到开始位置
         console.log(`尝试播放音频...`);
+
+        // 播放音频并处理结果
+        wordAudioElement.play().then(() => {
+          console.log(`音频播放成功: ${word}`);
+        }).catch(e => {
+          console.error(`无法自动播放单词发音: ${e.message}`);
+
+          // 检查是否存在手动播放按钮
+          let playButton = document.getElementById(`play-button-${word}`);
+          if (!playButton) {
+            // 创建手动播放按钮
+            playButton = document.createElement('button');
+            playButton.id = `play-button-${word}`;
+            playButton.textContent = `播放 ${word}`;
+            playButton.className = 'bg-primary text-white px-4 py-2 rounded-md shadow-lg fixed bottom-4 right-4 z-50';
+            playButton.style.fontSize = '16px';
+            playButton.style.minWidth = '120px';
+            playButton.style.transition = 'all 0.3s ease';
+            playButton.style.animation = 'fadeIn 0.5s ease-in-out';
+
+            // 添加点击事件
+            playButton.addEventListener('click', function() {
+              console.log(`用户点击播放按钮: ${word}`);
+              wordAudioElement.play().then(() => {
+                console.log(`通过手动点击播放成功: ${word}`);
+                // 播放完成后移除按钮
+                setTimeout(() => {
+                  if (playButton.parentNode) {
+                    playButton.style.animation = 'fadeOut 0.5s ease-in-out';
+                    setTimeout(() => playButton.remove(), 500);
+                  }
+                }, 2000);
+              }).catch(err => {
+                console.error(`手动点击播放也失败: ${err.message}`);
+              });
+            });
+
+            document.body.appendChild(playButton);
+            console.log(`已添加手动播放按钮`);
+          }
+        });
       } catch (e) {
         console.error(`播放单词发音时出错: ${e.message}`);
       }
@@ -453,15 +495,22 @@
           const id = match[1];
           const phoneticText = this.textContent;
           
-          // 添加单词提示
-          const existingTooltip = this.querySelector('.word-tooltip');
+          // 检查是否已经存在对应的tooltip（附加到body上）
+          let existingTooltip = document.getElementById(`tooltip-${id}`);
           if (!existingTooltip) {
             const tooltip = document.createElement('div');
             tooltip.className = 'word-tooltip';
+            tooltip.id = `tooltip-${id}`;
             
             // 为每个tooltip设置唯一的z-index，确保最新显示的在最上层
             maxTooltipZIndex++;
             tooltip.style.zIndex = maxTooltipZIndex;
+            
+            // 设置绝对定位
+            const rect = this.getBoundingClientRect();
+            tooltip.style.position = 'absolute';
+            tooltip.style.top = (rect.bottom + window.scrollY-5) + 'px';
+            tooltip.style.left = (rect.left + window.scrollX) + 'px';
             
             const words = phoneticWords[id] || [];
             if (words.length > 0) {
@@ -472,8 +521,8 @@
               const wordsContainer = document.createElement('div');
               tooltip.appendChild(wordsContainer);
               
-              this.style.position = 'relative';
-              this.appendChild(tooltip);
+              // 添加到body而不是this
+              document.body.appendChild(tooltip);
               
               // 显示单词列表
               for (const word of words) {
@@ -523,13 +572,18 @@
             } else {
               // 如果没有单词数据，显示提示
               tooltip.innerHTML = `<div class="text-gray-400">加载单词数据中...</div>`;
-              this.style.position = 'relative';
-              this.appendChild(tooltip);
+              // 添加到body而不是this
+              document.body.appendChild(tooltip);
             }
           } else {
             // 如果已经有tooltip，重新开始播放
             const words = phoneticWords[id] || [];
             if (words.length > 0) {
+              // 更新位置
+              const rect = this.getBoundingClientRect();
+              existingTooltip.style.top = (rect.bottom + window.scrollY-5) + 'px';
+              existingTooltip.style.left = (rect.left + window.scrollX) + 'px';
+              
               // 更新z-index确保在最上层显示
               maxTooltipZIndex++;
               existingTooltip.style.zIndex = maxTooltipZIndex;
@@ -545,34 +599,29 @@
       // 鼠标离开时停止播放并隐藏工具提示
       button.addEventListener('mouseleave', function(e) {
         // 检查鼠标是否移向了tooltip中的元素
-        const tooltip = this.querySelector('.word-tooltip');
-        if (tooltip) {
-          // 使用setTimeout延迟处理mouseleave事件，
-          // 以便检查鼠标是否移向了tooltip中的元素
-          setTimeout(() => {
-            // 检查relatedTarget（鼠标移向的元素）是否在tooltip内
-            if (tooltip.contains(document.activeElement) || 
-                (e.relatedTarget && tooltip.contains(e.relatedTarget))) {
-              return; // 鼠标移向了tooltip内部，不执行移除操作
-            }
-            
-            // 隐藏工具提示而不是移除
-            tooltip.style.display = 'none';
-            
-            // 停止音频播放
-            const href = this.getAttribute('href');
-            const match = href.match(/d(\d+)/);
-            if (match && match[1]) {
-              const id = match[1];
+        const href = this.getAttribute('href');
+        const match = href.match(/d(\d+)/);
+        if (match && match[1]) {
+          const id = match[1];
+          const tooltip = document.getElementById(`tooltip-${id}`);
+          if (tooltip) {
+            // 使用setTimeout延迟处理mouseleave事件，
+            // 以便检查鼠标是否移向了tooltip中的元素
+            setTimeout(() => {
+              // 检查relatedTarget（鼠标移向的元素）是否在tooltip内
+              if (tooltip.contains(document.activeElement) || 
+                  (e.relatedTarget && tooltip.contains(e.relatedTarget))) {
+                return; // 鼠标移向了tooltip内部，不执行移除操作
+              }
+              
+              // 隐藏工具提示而不是移除
+              tooltip.style.display = 'none';
+              
+              // 停止音频播放
               stopAllAudio(id);
-            }
-          }, 100); // 延迟100毫秒执行
-        } else {
-          // 没有tooltip时直接移除并停止播放
-          const href = this.getAttribute('href');
-          const match = href.match(/d(\d+)/);
-          if (match && match[1]) {
-            const id = match[1];
+            }, 100); // 延迟100毫秒执行
+          } else {
+            // 没有tooltip时直接停止播放
             stopAllAudio(id);
           }
         }
@@ -583,16 +632,16 @@
         e.preventDefault();
         
         // 隐藏工具提示而不是移除
-        const tooltip = this.querySelector('.word-tooltip');
-        if (tooltip) {
-          tooltip.style.display = 'none';
-        }
-        
-        // 停止音频播放
         const href = this.getAttribute('href');
         const match = href.match(/d(\d+)/);
         if (match && match[1]) {
           const id = match[1];
+          const tooltip = document.getElementById(`tooltip-${id}`);
+          if (tooltip) {
+            tooltip.style.display = 'none';
+          }
+          
+          // 停止音频播放
           stopAllAudio(id);
         }
         
